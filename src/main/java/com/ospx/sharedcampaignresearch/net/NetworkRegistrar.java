@@ -62,10 +62,11 @@ public final class NetworkRegistrar {
             return;
         }
 
-        Net.registerPacket(ResearchRequestPacket::new);
-        Net.registerPacket(ResearchResponsePacket::new);
-        Net.registerPacket(ResearchSyncPacket::new);
-        Net.registerPacket(ResearchSyncRequestPacket::new);
+        Vars.net.registerPacket(ResearchRequestPacket::new);
+        Vars.net.registerPacket(ResearchResponsePacket::new);
+        Vars.net.registerPacket(ResearchSyncPacket::new);
+        Vars.net.registerPacket(ResearchSyncRequestPacket::new);
+
         Vars.net.handleServer(ResearchRequestPacket.class, this::handleResearchRequest);
         Vars.net.handleServer(ResearchSyncRequestPacket.class, this::handleSyncRequest);
         Vars.net.handleClient(ResearchResponsePacket.class, this::handleResearchResponse);
