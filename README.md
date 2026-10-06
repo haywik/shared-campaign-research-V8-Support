@@ -1,6 +1,6 @@
-[!NOTE]
+> [!NOTE]
 > This mod has been forked to support Mindustry Build v160.5
-> This fork is untested.
+> This fork could be unstable and unreliable.
 
 # Shared Campaign Research
 
