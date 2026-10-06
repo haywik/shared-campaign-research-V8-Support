@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "com.ospx"
-version = "0.2.5-alpha.1"
+version = "0.2.5-alpha.1-forked-v160.5"
 
 val jabelVersion = "93fde537c7"
 

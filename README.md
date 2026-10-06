@@ -1,3 +1,7 @@
+[!NOTE]
+> This mod has been forked to support Mindustry Build v160.5
+> This fork is untested.
+
 # Shared Campaign Research
 
 A co-op campaign mod for shared research. Players who joined the host can request research from the research screen, and the result is applied to the current campaign.
