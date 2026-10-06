@@ -1,6 +1,7 @@
 package com.ospx.sharedcampaignresearch.net;
 
 import arc.Core;
+import arc.func.Prov;
 import arc.struct.ObjectIntMap;
 import arc.struct.OrderedMap;
 import arc.util.Nullable;
@@ -17,11 +18,12 @@ import com.ospx.sharedcampaignresearch.sync.ResearchProgressSnapshot;
 import com.ospx.sharedcampaignresearch.sync.ResearchSyncService;
 import com.ospx.sharedcampaignresearch.sync.ResearchSyncSnapshot;
 import com.ospx.sharedcampaignresearch.util.StringsCompat;
+import java.lang.reflect.Method;
 import java.util.Objects;
 import mindustry.Vars;
 import mindustry.content.TechTree.TechNode;
-import mindustry.net.Net;
 import mindustry.net.NetConnection;
+import mindustry.net.Packet;
 
 public final class NetworkRegistrar {
 
@@ -62,18 +64,31 @@ public final class NetworkRegistrar {
             return;
         }
 
-        Vars.net.registerPacket(ResearchRequestPacket::new);
-        Vars.net.registerPacket(ResearchResponsePacket::new);
-        Vars.net.registerPacket(ResearchSyncPacket::new);
-        Vars.net.registerPacket(ResearchSyncRequestPacket::new);
+        registerPacketCompat(ResearchRequestPacket::new);
+        registerPacketCompat(ResearchResponsePacket::new);
+        registerPacketCompat(ResearchSyncPacket::new);
+        registerPacketCompat(ResearchSyncRequestPacket::new);
 
-        Vars.net.handleServer(ResearchRequestPacket.class, this::handleResearchRequest);
-        Vars.net.handleServer(ResearchSyncRequestPacket.class, this::handleSyncRequest);
-        Vars.net.handleClient(ResearchResponsePacket.class, this::handleResearchResponse);
-        Vars.net.handleClient(ResearchSyncPacket.class, this::handleResearchSync);
+        Vars.net.handleServer(ResearchRequestPacket.class, (connection, packet) -> this.handleResearchRequest(connection, packet));
+        Vars.net.handleServer(ResearchSyncRequestPacket.class, (connection, packet) -> this.handleSyncRequest(connection, packet));
+        Vars.net.handleClient(ResearchResponsePacket.class, packet -> this.handleResearchResponse(packet));
+        Vars.net.handleClient(ResearchSyncPacket.class, packet -> this.handleResearchSync(packet));
 
         registered = true;
         SharedCampaignResearchMod.log("network registrar initialized");
+    }
+
+    private void registerPacketCompat(Prov<Packet> provider) {
+        try {
+            Vars.net.registerPacket(provider);
+        } catch (NoSuchMethodError e) {
+            try {
+                Method method = Vars.net.getClass().getMethod("registerPacket", Prov.class);
+                method.invoke(Vars.net, provider);
+            } catch (Exception ex) {
+                throw new RuntimeException("Failed to register network packet dynamically", ex);
+            }
+        }
     }
 
     public boolean requestResearch(String nodeName) {
